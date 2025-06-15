@@ -33,13 +33,13 @@ if (!GOOGLE_ROUTES_API_KEY) {
     console.error('ERROR: GOOGLE_ROUTES_API_KEY is not set in the .env file!');
     process.exit(1); // Exit if critical API key is missing
 }
-const allowedOrigin = 'https://comforting-douhua-1da089.netlify.app/';
+const allowedOrigin = 'http://localhost:3000';
 // --- Middleware Setup ---
 app.use(cors({
   origin: allowedOrigin,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Crucial: include OPTIONS
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'], // Add any custom headers your frontend sends
-  credentials: true, // If your frontend sends cookies or auth headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Include all methods this function handles
+  allowedHeaders: ['X-CSRF-Token', 'X-Requested-With', 'Accept', 'Accept-Version', 'Content-Length', 'Content-MD5', 'Content-Type', 'Date', 'X-Api-Version', 'Authorization'], // Added quotes and included all specified headers
+  credentials: false, // Set to false because origin is '*'
 }));
 app.use(express.json()); // Enable JSON body parsing for incoming requests
 
