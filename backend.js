@@ -33,7 +33,7 @@ if (!GOOGLE_ROUTES_API_KEY) {
     console.error('ERROR: GOOGLE_ROUTES_API_KEY is not set in the .env file!');
     process.exit(1); // Exit if critical API key is missing
 }
-const allowedOrigin = 'https://https://comforting-douhua-1da089.netlify.app/';
+const allowedOrigin = 'https://comforting-douhua-1da089.netlify.app/';
 // --- Middleware Setup ---
 app.use(cors({
   origin: allowedOrigin,
