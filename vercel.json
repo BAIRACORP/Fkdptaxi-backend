@@ -1,29 +1,33 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "backend.js",
-      "use": "@vercel/node"
-    }
+  "rewrites": [
+    { "source": "/api/send-otp", "destination": "/backend.js" },
+    { "source": "/api/verify-otp", "destination": "/backend.js" },
+    { "source": "/api/send-booking-sms", "destination": "/backend.js" },
+    { "source": "/api/get-tolls", "destination": "/backend.js" },
+    { "source": "/", "destination": "/backend.js" }
   ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Origin", "value": "http://localhost:3000" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
-        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" },
+        { "key": "Access-Control-Allow-Credentials", "value": "true" }
       ]
     },
     {
       "source": "/",
       "headers": [
-        { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Origin", "value": "http://localhost:3000" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
-        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" },
+        { "key": "Access-Control-Allow-Credentials", "value": "true" }
       ]
     }
+  ],
+  "builds": [
+    { "src": "backend.js", "use": "@vercel/node" }
   ]
 }
