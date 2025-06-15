@@ -1,4 +1,3 @@
-// backend.js
 import dotenv from 'dotenv'; // For loading environment variables
 import express from 'express';
 import cors from 'cors';
@@ -12,13 +11,6 @@ const app = express();
 // Use port from .env or default to 5000 (consistent with your previous logs)
 const port = process.env.PORT || 5000;
 
-// --- Define allowedOrigin ---
-// This should match the origin(s) allowed in your vercel.json.
-// For Netlify deployment, it should be your Netlify frontend URL.
-// For local testing, 'http://localhost:3000' is correct.
-const allowedOrigin = 'http://localhost:3000';
-
-
 // --- Twilio Credentials from Environment Variables ---
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
@@ -31,56 +23,25 @@ const GOOGLE_ROUTES_API_KEY = process.env.GOOGLE_ROUTES_API_KEY;
 // --- Initialize Twilio Client ---
 // It's good practice to add checks for missing credentials before initialization
 if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_VERIFY_SERVICE_SID || !TWILIO_PHONE_NUMBER) {
-    console.error('CRITICAL ERROR: Missing one or more Twilio environment variables. Please check your .env file or Vercel environment settings.');
-    // In a deployed environment, you might want a more graceful failure.
-    // For debugging, this helps identify missing ENV vars immediately.
-    process.exit(1);
+    console.error('CRITICAL ERROR: Missing one or more Twilio environment variables. Please check your .env file.');
+    process.exit(1); // Exit if critical credentials are missing
 }
 const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
 // --- Check Google Maps API Key ---
 if (!GOOGLE_ROUTES_API_KEY) {
-    console.error('ERROR: GOOGLE_ROUTES_API_KEY is not set in the .env file or Vercel environment settings!');
-    process.exit(1);
+    console.error('ERROR: GOOGLE_ROUTES_API_KEY is not set in the .env file!');
+    process.exit(1); // Exit if critical API key is missing
 }
-
-// --- CORS Headers Configuration ---
-const CORS_HEADERS = {
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization',
-    'Access-Control-Allow-Credentials': 'true', // Assuming you send credentials from localhost:3000
-};
-
+const allowedOrigin = 'http://localhost:3000';
 // --- Middleware Setup ---
-
-// 1. Explicitly handle OPTIONS requests for all paths.
-// This is the most direct way to ensure the preflight receives a 200 OK.
-app.options('*', (req, res) => {
-    // Set all necessary CORS headers for the preflight response
-    Object.keys(CORS_HEADERS).forEach(key => {
-        res.setHeader(key, CORS_HEADERS[key]);
-    });
-    // Send a 200 OK status for the preflight
-    res.status(200).end();
-});
-
-
-// 2. Apply the CORS middleware for all actual requests (GET, POST, etc.).
-// This ensures the CORS headers are present on the actual API responses.
 app.use(cors({
-    origin: allowedOrigin,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Even though OPTIONS is handled above, it's good to list it here
-    allowedHeaders: ['X-CSRF-Token', 'X-Requested-With', 'Accept', 'Accept-Version', 'Content-Length', 'Content-MD5', 'Content-Type', 'Date', 'X-Api-Version', 'Authorization'],
-    credentials: true, // This should match what your frontend needs and origin rules.
+  origin: allowedOrigin,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Include all methods this function handles
+  allowedHeaders: ['X-CSRF-Token', 'X-Requested-With', 'Accept', 'Accept-Version', 'Content-Length', 'Content-MD5', 'Content-Type', 'Date', 'X-Api-Version', 'Authorization'], // Added quotes and included all specified headers
+  credentials: false, // Set to false because origin is '*'
 }));
-
 app.use(express.json()); // Enable JSON body parsing for incoming requests
-
-// --- Root API Endpoint (for Vercel health checks/sanity check) ---
-app.get('/', (req, res) => {
-    res.status(200).send('Fasttrack Drop Taxi Backend is running!');
-});
 
 // --- Helper function for E.164 phone number formatting ---
 // Twilio requires phone numbers in E.164 format (e.g., +12345678900).
@@ -332,4 +293,3 @@ app.listen(port, () => {
     console.log(`Twilio endpoints: /api/send-otp, /api/verify-otp, /api/send-booking-sms`);
     console.log(`Google Maps endpoint: /api/get-tolls`);
 });
-module.exports = app;
