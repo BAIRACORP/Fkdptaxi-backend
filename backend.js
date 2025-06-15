@@ -36,9 +36,10 @@ if (!GOOGLE_ROUTES_API_KEY) {
 
 // --- Middleware Setup ---
 app.use(cors({
-    origin: '*', // WARNING: Allows all origins. Only use for temporary debugging.
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type'],
+  origin: allowedOrigin,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Crucial: include OPTIONS
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'], // Add any custom headers your frontend sends
+  credentials: true, // If your frontend sends cookies or auth headers
 }));
 app.use(express.json()); // Enable JSON body parsing for incoming requests
 
