@@ -1,19 +1,32 @@
 {
-  "name": "v1",
+  "name": "fasttrack-backend",
   "version": "1.0.0",
+  "description": "Backend for Fasttrack Drop Taxi application",
   "main": "backend.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node backend.js",
+    "dev": "nodemon backend.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "taxi",
+    "drop-taxi",
+    "backend",
+    "node",
+    "express",
+    "twilio",
+    "google-maps"
+  ],
+  "author": "Your Name or Team Name",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0",
+    "express": "^4.19.2",
     "node-fetch": "^3.3.2",
-    "twilio": "^5.7.1"
+    "twilio": "^5.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }
