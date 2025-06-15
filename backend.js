@@ -1,3 +1,4 @@
+// backend.js
 import dotenv from 'dotenv'; // For loading environment variables
 import express from 'express';
 import cors from 'cors';
@@ -10,6 +11,10 @@ dotenv.config();
 const app = express();
 // Use port from .env or default to 5000 (consistent with your previous logs)
 const port = process.env.PORT || 5000;
+
+// --- Define allowedOrigin BEFORE it's used ---
+// This is the origin of your frontend application on Netlify that will make requests to this backend.
+const allowedOrigin = 'https://comforting-douhua-1da089.netlify.app';
 
 // --- Twilio Credentials from Environment Variables ---
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
@@ -24,7 +29,10 @@ const GOOGLE_ROUTES_API_KEY = process.env.GOOGLE_ROUTES_API_KEY;
 // It's good practice to add checks for missing credentials before initialization
 if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_VERIFY_SERVICE_SID || !TWILIO_PHONE_NUMBER) {
     console.error('CRITICAL ERROR: Missing one or more Twilio environment variables. Please check your .env file.');
-    process.exit(1); // Exit if critical credentials are missing
+    // In a deployed environment, you might want a more graceful failure than process.exit(1),
+    // but for debugging, this makes the problem clear.
+    // For now, let's keep it for immediate feedback during deployment issues.
+    process.exit(1); 
 }
 const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
@@ -35,13 +43,17 @@ if (!GOOGLE_ROUTES_API_KEY) {
 }
 
 // --- Middleware Setup ---
+// Apply CORS middleware. This needs to come before any routes are defined.
+// The 'cors' package handles the OPTIONS preflight request automatically when configured.
 app.use(cors({
-  origin: allowedOrigin,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Crucial: include OPTIONS
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'], // Add any custom headers your frontend sends
-  credentials: true, // If your frontend sends cookies or auth headers
+    origin: allowedOrigin, // Correctly defined now
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Ensure OPTIONS is explicitly allowed here
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'], // Add any custom headers your frontend sends
+    credentials: true, // Set to true if your frontend sends cookies or auth headers with credentials
 }));
-app.use(express.json()); // Enable JSON body parsing for incoming requests
+
+// Enable JSON body parsing for incoming requests. This also comes before routes.
+app.use(express.json());
 
 // --- Helper function for E.164 phone number formatting ---
 // Twilio requires phone numbers in E.164 format (e.g., +12345678900).
@@ -58,6 +70,10 @@ const formatPhoneNumberForTwilio = (number) => {
     return cleanedNumber;
 };
 
+// --- Root API Endpoint (for Vercel health checks/sanity check) ---
+app.get('/', (req, res) => {
+    res.status(200).send('Fasttrack Drop Taxi Backend is running!');
+});
 
 // --- API Endpoint: Send OTP (Twilio Verify) ---
 app.post('/api/send-otp', async (req, res) => {
@@ -181,6 +197,7 @@ app.post('/api/send-booking-sms', async (req, res) => {
 
 
 // --- API Endpoint for Toll Calculation (Google Maps Routes API) ---
+// Note: The 'cors' middleware (app.use(cors())) should handle the OPTIONS preflight automatically for this POST route.
 app.post('/api/get-tolls', async (req, res) => {
     const { pickup, dropoff, distance, vehicleType } = req.body;
 
@@ -288,8 +305,15 @@ app.post('/api/get-tolls', async (req, res) => {
 });
 
 // --- Start the Server ---
+// In a Vercel serverless environment, the 'listen' call is typically not needed
+// as Vercel's infrastructure manages the server lifecycle.
+// However, for local testing, it's essential.
 app.listen(port, () => {
     console.log(`Unified backend server running on http://localhost:${port}`);
     console.log(`Twilio endpoints: /api/send-otp, /api/verify-otp, /api/send-booking-sms`);
     console.log(`Google Maps endpoint: /api/get-tolls`);
 });
+
+// Export the app for Vercel to use as a serverless function entry point
+// Make sure your vercel.json points to this file, e.g., "src": "backend.js", "use": "@vercel/node"
+module.exports = app;
