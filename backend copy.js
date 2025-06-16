@@ -144,18 +144,9 @@ app.post('/api/send-booking-sms', async (req, res) => {
             To: ${bookingDetails.dropoff || 'N/A'}
             Date: ${bookingDetails.pickupDate || 'N/A'} ${bookingDetails.pickupTime || 'N/A'}
             Fare: ₹${bookingDetails.fareDetails?.total?.toFixed(2) || 'N/A'}
-            Thank you for booking our cab service!
+            Driver: ${bookingDetails.driverName || 'Assigned Soon'} (${bookingDetails.driverVehicle || 'N/A'})
+            Download App for updates!
         `.replace(/^\s*\n|\n\s*$/g, '').replace(/\s+/g, ' ').trim(); // Clean up extra spaces/lines
-        // const messageBody = `
-        //     Fasttrack Drop Taxi Booking Confirmed!
-        //     ID: ${bookingDetails.bookingId || 'N/A'}
-        //     From: ${bookingDetails.pickup || 'N/A'}
-        //     To: ${bookingDetails.dropoff || 'N/A'}
-        //     Date: ${bookingDetails.pickupDate || 'N/A'} ${bookingDetails.pickupTime || 'N/A'}
-        //     Fare: ₹${bookingDetails.fareDetails?.total?.toFixed(2) || 'N/A'}
-        //     Driver: ${bookingDetails.driverName || 'Assigned Soon'} (${bookingDetails.driverVehicle || 'N/A'})
-        //     Thank you for booking our cab service!
-        // `.replace(/^\s*\n|\n\s*$/g, '').replace(/\s+/g, ' ').trim(); // Clean up extra spaces/lines
 
         console.log(`Sending booking confirmation SMS to ${phoneNumber} with message: ${messageBody}`);
 
